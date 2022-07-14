@@ -14,6 +14,7 @@ from rfnet.utils.datasets import Brats_loadall_eval, get_mask_combinations
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', default=1, type=int)
+    parser.add_argument('--patch_size', default=80, type=int)
     parser.add_argument('--datapath', default=None, type=str)
     parser.add_argument('--savepath', default=None, type=str)
     parser.add_argument('--checkpoint', default=None, type=str)              
@@ -22,7 +23,7 @@ def parse():
     return args
 
 
-def testing(test_loader, model, feature_mask):
+def testing(test_loader, model, feature_mask, patch_size=80):
 
     model.eval()
     model.module.is_training=False
@@ -48,20 +49,20 @@ def testing(test_loader, model, feature_mask):
 
         ###### Sliding Windows ######
         B, _, H, W, Z = x.size()
-        h_idx_list, w_idx_list, z_idx_list = get_sliding_windows(H, W, Z, patch_size=80)
+        h_idx_list, w_idx_list, z_idx_list = get_sliding_windows(H, W, Z, patch_size=patch_size)
 
         ###### Prediction ######
-        one_tensor = torch.ones(1, 1, 80, 80, 80).float().cuda() 
+        one_tensor = torch.ones(1, 1, patch_size, patch_size, patch_size).float().cuda() 
         weight = torch.zeros(1, 1, H, W, Z).float().cuda()
         pred = torch.zeros(B, num_cls, H, W, Z).float().cuda()
 
         for h in h_idx_list:
             for w in w_idx_list:
                 for z in z_idx_list:
-                    x_input = x[:, :, h:h+80, w:w+80, z:z+80]
+                    x_input = x[:, :, h:h+patch_size, w:w+patch_size, z:z+patch_size]
                     pred_part = model(x_input, mask)
-                    pred[:, :, h:h+80, w:w+80, z:z+80] += pred_part
-                    weight[:, :, h:h+80, w:w+80, z:z+80] += one_tensor
+                    pred[:, :, h:h+patch_size, w:w+patch_size, z:z+patch_size] += pred_part
+                    weight[:, :, h:h+patch_size, w:w+patch_size, z:z+patch_size] += one_tensor
 
         weight = weight.repeat(B, num_cls, 1, 1, 1)
         pred = pred / weight
@@ -143,7 +144,7 @@ def run():
         for i, mask in enumerate(masks):
 
             logging.info('mask | {}'.format(mask_name[i]))
-            dice_score = testing(test_loader, model, feature_mask = mask)
+            dice_score = testing(test_loader, model, feature_mask=mask, patch_size=args.patch_size)
             test_score.update(dice_score)
 
         logging.info('Avg scores: {}'.format(test_score.avg))

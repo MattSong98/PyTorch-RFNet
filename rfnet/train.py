@@ -18,6 +18,7 @@ from rfnet.utils.datasets import Brats_loadall, init_fn
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', default=1, type=int)
+    parser.add_argument('--patch_size', default=80, type=int)
     parser.add_argument('--datapath', default=None, type=str)
     parser.add_argument('--savepath', default=None, type=str)
     parser.add_argument('--resume', default=None, type=str)              
@@ -135,7 +136,7 @@ def run():
 
     train_file = 'train.txt'
     
-    train_transforms = 'Compose([RandCrop3D((80,80,80)), RandomRotion(10), RandomIntensityChange((0.1,0.1)), RandomFlip(0), NumpyType((np.float32, np.int64)),])'
+    train_transforms = 'Compose([RandCrop3D(({},{},{})), RandomRotion(10), RandomIntensityChange((0.1,0.1)), RandomFlip(0), NumpyType((np.float32, np.int64)),])'.format(args.patch_size, args.patch_size, args.patch_size)
 
     num_cls = 4
 
