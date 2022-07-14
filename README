@@ -6,8 +6,8 @@
 
 3. rename the BRATS2020 folder as "data" [mv BRATS2020_Training_none_npy data]
 
-4. open job.sh and change PYTHONPATH to the corrrect project path (eg. "~/Desktop/PyTorch-RFNet")
+4. open job.sh and change PYTHONPATH to the correct project path (eg. "~/Desktop/PyTorch-RFNet")
 
 5. run the script [bash job.sh]
 
-notes: you should have CUDA & PyTorch Intalled in your environment. However, you don't have to worry about the version. (any common version will work)
+notes: you should have CUDA & PyTorch Installed in your environment. However, you don't have to worry about the version. (any common version will work)
