@@ -1,0 +1,13 @@
+### INSTALLATION GUIDE ###
+
+1. cd PyTorch_RFNet
+
+2. get dataset BRATS2020 here (https://drive.google.com/drive/folders/1AwLwGgEBQwesIDTlWpubbwqxxd8brt5A?usp=sharing) and unzip it under the project folder PyTorch-RFNet [tar -xzf BRATS2020_Training_none_npy.tar.gz]
+
+3. rename the BRATS2020 folder as "data" [mv BRATS2020_Training_none_npy data]
+
+4. open job.sh and change PYTHONPATH to the corrrect project path (eg. "~/Desktop/PyTorch-RFNet")
+
+5. run the script [bash job.sh]
+
+notes: you should have CUDA & PyTorch Intalled in your environment. However, you don't have to worry about the version. (any common version will work)
