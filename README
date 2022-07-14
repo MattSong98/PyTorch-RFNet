@@ -1,6 +1,6 @@
 ### INSTALLATION GUIDE ###
 
-1. cd PyTorch_RFNet
+1. cd PyTorch-RFNet [cd PyTorch-RFNet]
 
 2. get dataset BRATS2020 here (https://drive.google.com/drive/folders/1AwLwGgEBQwesIDTlWpubbwqxxd8brt5A?usp=sharing) and unzip it under the project folder PyTorch-RFNet [tar -xzf BRATS2020_Training_none_npy.tar.gz]
 

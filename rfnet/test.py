@@ -132,7 +132,6 @@ def run():
     model = torch.nn.DataParallel(model).cuda()
     checkpoint = torch.load(args.checkpoint)
     model.load_state_dict(checkpoint['state_dict'])
-    test_score = AverageMeter()
 
     ########## Testing ##############
 
