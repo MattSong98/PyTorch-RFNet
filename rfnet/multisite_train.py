@@ -177,11 +177,11 @@ def run():
 
     # one lr_scheduler is enough whereas each model requires an independant optimizer.
     lr_scheduler = LR_Scheduler(args.lr, args.num_epochs)
+    optimizers = []
     for i in range(args.num_sites):
-      optimizers = []
-      train_params = [{'params': models[i].parameters(), 'lr': args.lr, 'weight_decay':args.weight_decay}]
-      optimizer = torch.optim.Adam(train_params,  betas=(0.9, 0.999), eps=1e-08, amsgrad=True)
-      optimizers.append(optimizer)
+        train_params = [{'params': models[i].parameters(), 'lr': args.lr, 'weight_decay':args.weight_decay}]
+        optimizer = torch.optim.Adam(train_params,  betas=(0.9, 0.999), eps=1e-08, amsgrad=True)
+        optimizers.append(optimizer)
 
     ########## Training #########
     
