@@ -14,10 +14,13 @@ checkpoint=output/model_last.pth
 export PYTHONPATH="/content/PyTorch-RFNet:${PYTHONPATH}"
 
 #train
-python3 rfnet/train.py --batch_size $batch_size --patch_size $patch_size --iter_per_epoch $iterations --datapath $datapath --savepath $savepath --num_epochs $epochs --lr 2e-4 --region_fusion_start_epoch 20 
+#python3 rfnet/train.py --batch_size $batch_size --patch_size $patch_size --iter_per_epoch $iterations --datapath $datapath --savepath $savepath --num_epochs $epochs --lr 2e-4 --region_fusion_start_epoch 20 
 
 # multisite_train
 #python3 rfnet/multisite_train.py --num_sites $num_sites --batch_size $batch_size --patch_size $patch_size --iter_per_epoch $iterations --datapath $datapath --savepath $savepath --num_epochs $epochs --lr 2e-4 --region_fusion_start_epoch 20 
 
+#incomplete_train
+python3 rfnet/incomplete_train.py --batch_size $batch_size --patch_size $patch_size --iter_per_epoch $iterations --datapath $datapath --savepath $savepath --num_epochs $epochs --lr 2e-4 --region_fusion_start_epoch 20
+
 #test
-python3 rfnet/test.py --batch_size $batch_size --patch_size $patch_size --datapath $datapath --savepath $savepath --checkpoint $checkpoint
+#python3 rfnet/test.py --batch_size $batch_size --patch_size $patch_size --datapath $datapath --savepath $savepath --checkpoint $checkpoint

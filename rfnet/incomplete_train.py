@@ -9,7 +9,7 @@ import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter 
 
-from rfnet.models.models import Model
+from rfnet.models.models import Modelv2
 from rfnet.utils.utils import seed_setup, logging_setup, tensorboard_record, model_save
 from rfnet.utils.utils import LR_Scheduler, loss_compute, AverageMeter
 from rfnet.utils.datasets import Brats_loadall, init_fn

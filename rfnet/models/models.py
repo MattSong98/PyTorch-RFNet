@@ -189,7 +189,7 @@ class Model(nn.Module):
 
 class Modelv2(nn.Module):
     def __init__(self, num_cls=4):
-        super(Model, self).__init__()
+        super(Modelv2, self).__init__()
         self.flair_encoder = Encoder()
         self.t1ce_encoder = Encoder()
         self.t1_encoder = Encoder()
@@ -211,22 +211,34 @@ class Modelv2(nn.Module):
         if mask[0][0] == True:      
             flair_x1, flair_x2, flair_x3, flair_x4 = self.flair_encoder(x[:, 0:1, :, :, :])
         else:
-            flair_x1, flair_x2, flair_x3, flair_x4 = torch.zeros_like(x[:, 0:1, :, :, :])
+            flair_x1 = torch.zeros(1, 16, 80, 80, 80).cuda()
+            flair_x2 = torch.zeros(1, 32, 40, 40, 40).cuda()
+            flair_x3 = torch.zeros(1, 64, 20, 20, 20).cuda()
+            flair_x4 = torch.zeros(1, 128, 10, 10, 10).cuda()
         
         if mask[0][1] == True:
             t1ce_x1, t1ce_x2, t1ce_x3, t1ce_x4 = self.t1ce_encoder(x[:, 1:2, :, :, :])
         else: 
-            t1ce_x1, t1ce_x2, t1ce_x3, t1ce_x4 = torch.zeros_like(x[:, 1:2, :, :, :])
+            t1ce_x1 = torch.zeros(1, 16, 80, 80, 80).cuda()
+            t1ce_x2 = torch.zeros(1, 32, 40, 40, 40).cuda()
+            t1ce_x3 = torch.zeros(1, 64, 20, 20, 20).cuda()
+            t1ce_x4 = torch.zeros(1, 128, 10, 10, 10).cuda()
         
         if mask[0][2] == True: 
             t1_x1, t1_x2, t1_x3, t1_x4 = self.t1_encoder(x[:, 2:3, :, :, :])
         else:        
-            t1_x1, t1_x2, t1_x3, t1_x4 = torch.zeros_like(x[:, 2:3, :, :, :])
+            t1_x1 = torch.zeros(1, 16, 80, 80, 80).cuda()
+            t1_x2 = torch.zeros(1, 32, 40, 40, 40).cuda()
+            t1_x3 = torch.zeros(1, 64, 20, 20, 20).cuda()
+            t1_x4 = torch.zeros(1, 128, 10, 10, 10).cuda()
 
         if mask[0][3] == True:
             t2_x1, t2_x2, t2_x3, t2_x4 = self.t2_encoder(x[:, 3:4, :, :, :])
         else:
-            t2_x1, t2_x2, t2_x3, t2_x4 = torch.zeros_like(x[:, 3:4, :, :, :])
+            t2_x1 = torch.zeros(1, 16, 80, 80, 80).cuda()
+            t2_x2 = torch.zeros(1, 32, 40, 40, 40).cuda()
+            t2_x3 = torch.zeros(1, 64, 20, 20, 20).cuda()
+            t2_x4 = torch.zeros(1, 128, 10, 10, 10).cuda()
             
         x1 = torch.stack((flair_x1, t1ce_x1, t1_x1, t2_x1), dim=1) 
         x2 = torch.stack((flair_x2, t1ce_x2, t1_x2, t2_x2), dim=1)
@@ -247,5 +259,4 @@ class Modelv2(nn.Module):
                 t2_pred = self.decoder_sep(t2_x1, t2_x2, t2_x3, t2_x4)
             return fuse_pred, (flair_pred, t1ce_pred, t1_pred, t2_pred), prm_preds
         return fuse_pred
-
 
