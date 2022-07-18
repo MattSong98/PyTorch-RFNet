@@ -78,7 +78,7 @@ def loss_compute(fuse_pred, sep_preds, prm_preds, target, num_cls, epoch, region
     return loss, (fuse_cross_loss, fuse_dice_loss, sep_cross_loss, sep_dice_loss, prm_cross_loss, prm_dice_loss)
 
 
-def model_save(model, optimizer, ckpts, epoch, num_epochs):
+def model_save(model, optimizer, ckpts, epoch, num_epochs, freq=50):
 
     file_name = os.path.join(ckpts, 'model_last.pth')
     torch.save({
@@ -88,7 +88,7 @@ def model_save(model, optimizer, ckpts, epoch, num_epochs):
         },
         file_name)
         
-    if (epoch+1) % 50 == 0 or (epoch>=(num_epochs-10)):
+    if (epoch+1) % freq == 0 or (epoch>=(num_epochs-10)):
         file_name = os.path.join(ckpts, 'model_{}.pth'.format(epoch+1))
         torch.save({
             'epoch': epoch+1,

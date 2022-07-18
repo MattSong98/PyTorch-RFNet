@@ -106,7 +106,7 @@ def train(train_loader,
         logging.info(msg)
 
         ### Saving PyTorch model ###
-        model_save(model, optimizer, ckpts, epoch, num_epochs)
+        model_save(model, optimizer, ckpts, epoch, num_epochs, freq=10)
     
 
 def run():
