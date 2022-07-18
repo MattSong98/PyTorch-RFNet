@@ -59,8 +59,9 @@ def loss_compute(fuse_pred, sep_preds, prm_preds, target, num_cls, epoch, region
     sep_cross_loss = torch.zeros(1).cuda().float()
     sep_dice_loss = torch.zeros(1).cuda().float()
     for sep_pred in sep_preds:
-        sep_cross_loss += softmax_weighted_loss(sep_pred, target, num_cls=num_cls)
-        sep_dice_loss += dice_loss(sep_pred, target, num_cls=num_cls)
+        if sep_pred != None:
+            sep_cross_loss += softmax_weighted_loss(sep_pred, target, num_cls=num_cls)
+            sep_dice_loss += dice_loss(sep_pred, target, num_cls=num_cls)
     sep_loss = sep_cross_loss + sep_dice_loss
 
     prm_cross_loss = torch.zeros(1).cuda().float()

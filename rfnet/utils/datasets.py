@@ -37,7 +37,7 @@ def get_mask_combinations():
 
 class Brats_loadall(Dataset):
 
-    def __init__(self, transforms='', root=None, num_cls=4, train_file='train.txt'):
+    def __init__(self, transforms='', root=None, num_cls=4, train_file='train.txt', train_mask=[True, True, True, True]):
 
         data_file_path = os.path.join(root, train_file) 
         with open(data_file_path, 'r') as f:
@@ -55,6 +55,7 @@ class Brats_loadall(Dataset):
         self.transforms = eval(transforms or 'Identity()')
         self.mask_array = np.array(masks)
         self.num_cls = num_cls
+        self.train_mask = torch.from_numpy(np.array(train_mask)) 
 
     def __getitem__(self, index):
 
@@ -80,7 +81,7 @@ class Brats_loadall(Dataset):
         yo = torch.squeeze(torch.from_numpy(yo), dim=0)
 
         mask_idx = int(np.random.choice(15, 1)) 
-        mask = torch.from_numpy(self.mask_array[mask_idx])
+        mask = torch.from_numpy(self.mask_array[mask_idx]) & self.train_mask
         return x, yo, mask, name
 
     def __len__(self):

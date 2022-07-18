@@ -185,3 +185,67 @@ class Model(nn.Module):
             t2_pred = self.decoder_sep(t2_x1, t2_x2, t2_x3, t2_x4)
             return fuse_pred, (flair_pred, t1ce_pred, t1_pred, t2_pred), prm_preds
         return fuse_pred
+
+
+class Modelv2(nn.Module):
+    def __init__(self, num_cls=4):
+        super(Model, self).__init__()
+        self.flair_encoder = Encoder()
+        self.t1ce_encoder = Encoder()
+        self.t1_encoder = Encoder()
+        self.t2_encoder = Encoder()
+
+        self.decoder_fuse = Decoder_fuse(num_cls=num_cls)
+        self.decoder_sep = Decoder_sep(num_cls=num_cls)
+
+        self.is_training = False
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv3d):
+                torch.nn.init.kaiming_normal_(m.weight) #
+
+    def forward(self, x, mask):
+
+        assert x.shape[0] == 1
+
+        if mask[0][0] == True:      
+            flair_x1, flair_x2, flair_x3, flair_x4 = self.flair_encoder(x[:, 0:1, :, :, :])
+        else:
+            flair_x1, flair_x2, flair_x3, flair_x4 = torch.zeros_like(x[:, 0:1, :, :, :])
+        
+        if mask[0][1] == True:
+            t1ce_x1, t1ce_x2, t1ce_x3, t1ce_x4 = self.t1ce_encoder(x[:, 1:2, :, :, :])
+        else: 
+            t1ce_x1, t1ce_x2, t1ce_x3, t1ce_x4 = torch.zeros_like(x[:, 1:2, :, :, :])
+        
+        if mask[0][2] == True: 
+            t1_x1, t1_x2, t1_x3, t1_x4 = self.t1_encoder(x[:, 2:3, :, :, :])
+        else:        
+            t1_x1, t1_x2, t1_x3, t1_x4 = torch.zeros_like(x[:, 2:3, :, :, :])
+
+        if mask[0][3] == True:
+            t2_x1, t2_x2, t2_x3, t2_x4 = self.t2_encoder(x[:, 3:4, :, :, :])
+        else:
+            t2_x1, t2_x2, t2_x3, t2_x4 = torch.zeros_like(x[:, 3:4, :, :, :])
+            
+        x1 = torch.stack((flair_x1, t1ce_x1, t1_x1, t2_x1), dim=1) 
+        x2 = torch.stack((flair_x2, t1ce_x2, t1_x2, t2_x2), dim=1)
+        x3 = torch.stack((flair_x3, t1ce_x3, t1_x3, t2_x3), dim=1)
+        x4 = torch.stack((flair_x4, t1ce_x4, t1_x4, t2_x4), dim=1)
+    
+        fuse_pred, prm_preds = self.decoder_fuse(x1, x2, x3, x4, mask)
+
+        if self.is_training:
+            flair_pred, t1ce_pred, t1_pred, t2_pred = [None, None, None, None]
+            if mask[0][0] == True:
+                flair_pred = self.decoder_sep(flair_x1, flair_x2, flair_x3, flair_x4)
+            if mask[0][1] == True:
+                t1ce_pred = self.decoder_sep(t1ce_x1, t1ce_x2, t1ce_x3, t1ce_x4)
+            if mask[0][2] == True:
+                t1_pred = self.decoder_sep(t1_x1, t1_x2, t1_x3, t1_x4)
+            if mask[0][3] == True:
+                t2_pred = self.decoder_sep(t2_x1, t2_x2, t2_x3, t2_x4)
+            return fuse_pred, (flair_pred, t1ce_pred, t1_pred, t2_pred), prm_preds
+        return fuse_pred
+
+
