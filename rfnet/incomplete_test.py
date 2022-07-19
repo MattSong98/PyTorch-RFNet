@@ -6,9 +6,9 @@ import torch
 from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 
-from rfnet.models.models import Model
+from rfnet.models.models import Modelv2
 from rfnet.utils.utils import logging_setup, seed_setup, AverageMeter, dice_compute, get_sliding_windows
-from rfnet.utils.datasets import Brats_loadall_eval, get_mask_combinations
+from rfnet.utils.datasets import Brats_loadall_eval, get_mask_combinations_exp1
 
 
 def parse():

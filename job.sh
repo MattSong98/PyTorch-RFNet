@@ -24,3 +24,6 @@ python3 rfnet/incomplete_train.py --batch_size $batch_size --patch_size $patch_s
 
 #test
 #python3 rfnet/test.py --batch_size $batch_size --patch_size $patch_size --datapath $datapath --savepath $savepath --checkpoint $checkpoint
+
+#incomplete_test
+python3 rfnet/incomplete_test.py --batch_size $batch_size --patch_size $patch_size --datapath $datapath --savepath $savepath --checkpoint $checkpoint
