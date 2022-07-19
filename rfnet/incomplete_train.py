@@ -154,7 +154,7 @@ def run():
                               root=args.datapath, 
                               num_cls=num_cls, 
                               train_file=train_file,
-                              mask_generator=get_mask_combination_exp1)
+                              mask_generator=get_mask_combinations_exp1)
 
     
     site_lengths = equally_spaced_list(len(train_set), args.num_sites)
