@@ -98,7 +98,7 @@ class Brats_loadall(Dataset):
         x = torch.squeeze(torch.from_numpy(x), dim=0)
         yo = torch.squeeze(torch.from_numpy(yo), dim=0)
 
-        num_masks = len(mask_array)
+        num_masks = len(self.mask_array)
         mask_idx = int(np.random.choice(num_masks, 1)) 
         mask = torch.from_numpy(self.mask_array[mask_idx])
         return x, yo, mask, name
