@@ -58,7 +58,7 @@ def get_mask_combinations_exp2():
 
     masks = [[False, False, False, True], 
             [False, False, True, False], 
-            [False, False, True, True], 
+            [False, False, True, True]]
 
     masks_torch = torch.from_numpy(np.array(masks))
 
