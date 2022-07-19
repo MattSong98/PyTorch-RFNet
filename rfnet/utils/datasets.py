@@ -54,6 +54,19 @@ def get_mask_combinations_exp1():
     return masks, masks_torch, mask_name
 
 
+def get_mask_combinations_exp2():
+
+    masks = [[False, False, False, True], 
+            [False, False, True, False], 
+            [False, False, True, True], 
+
+    masks_torch = torch.from_numpy(np.array(masks))
+
+    mask_name = ['t2', 't1', 't1t2']
+
+    return masks, masks_torch, mask_name
+
+
 class Brats_loadall(Dataset):
 
     def __init__(self, transforms='', root=None, num_cls=4, train_file='train.txt', mask_generator=get_mask_combinations):
