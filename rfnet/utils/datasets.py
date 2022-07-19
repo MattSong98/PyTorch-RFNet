@@ -35,9 +35,28 @@ def get_mask_combinations():
     return masks, masks_torch, mask_name
 
 
+def get_mask_combinations_exp1():
+
+    masks = [[False, False, False, True], 
+            [False, True, False, False], 
+            [False, False, True, False], 
+            [False, True, False, True], 
+            [False, True, True, False], 
+            [False, False, True, True], 
+            [False, True, True, True]]
+
+    masks_torch = torch.from_numpy(np.array(masks))
+
+    mask_name = ['t2', 't1c', 't1', 
+                 't1cet2', 't1cet1', 't1t2',
+                 't1cet1t2']
+
+    return masks, masks_torch, mask_name
+
+
 class Brats_loadall(Dataset):
 
-    def __init__(self, transforms='', root=None, num_cls=4, train_file='train.txt', train_mask=[True, True, True, True]):
+    def __init__(self, transforms='', root=None, num_cls=4, train_file='train.txt', mask_generator=get_mask_combinations):
 
         data_file_path = os.path.join(root, train_file) 
         with open(data_file_path, 'r') as f:
@@ -48,14 +67,13 @@ class Brats_loadall(Dataset):
         for dataname in datalist:
             volpaths.append(os.path.join(root, 'vol', dataname+'_vol.npy'))
 
-        masks, _, _ = get_mask_combinations()
+        masks, _, _ = mask_generator()
         
         self.names = datalist      
         self.volpaths = volpaths
         self.transforms = eval(transforms or 'Identity()')
         self.mask_array = np.array(masks)
         self.num_cls = num_cls
-        self.train_mask = torch.from_numpy(np.array(train_mask)) 
 
     def __getitem__(self, index):
 
@@ -80,8 +98,9 @@ class Brats_loadall(Dataset):
         x = torch.squeeze(torch.from_numpy(x), dim=0)
         yo = torch.squeeze(torch.from_numpy(yo), dim=0)
 
-        mask_idx = int(np.random.choice(15, 1)) 
-        mask = torch.from_numpy(self.mask_array[mask_idx]) & self.train_mask
+        num_masks = len(mask_array)
+        mask_idx = int(np.random.choice(num_masks, 1)) 
+        mask = torch.from_numpy(self.mask_array[mask_idx])
         return x, yo, mask, name
 
     def __len__(self):

@@ -6,19 +6,29 @@ import numpy as np
 import torch
 import torch.optim
 import torch.backends.cudnn as cudnn
-from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter 
+from torch.utils.data import DataLoader, random_split
 
 from rfnet.models.models import Modelv2
 from rfnet.utils.utils import seed_setup, logging_setup, tensorboard_record, model_save
 from rfnet.utils.utils import LR_Scheduler, loss_compute, AverageMeter
-from rfnet.utils.datasets import Brats_loadall, init_fn
+from rfnet.utils.datasets import Brats_loadall, init_fn, get_mask_combinations_exp1
+
+
+def equally_spaced_list(length, num):
+    q = length // num
+    r = length % num
+    ans = [q for i in range(num)]
+    for j in range(r):
+        ans[j] += 1
+    return ans
 
 
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', default=1, type=int)
     parser.add_argument('--patch_size', default=80, type=int)
+    parser.add_argument('--num_sites', default=5, type=int)
     parser.add_argument('--datapath', default=None, type=str)
     parser.add_argument('--savepath', default=None, type=str)
     parser.add_argument('--resume', default=None, type=str)              
@@ -106,8 +116,8 @@ def train(train_loader,
         logging.info(msg)
 
         ### Saving PyTorch model ###
-        model_save(model, optimizer, ckpts, epoch, num_epochs, freq=10)
-    
+        model_save(model, optimizer, ckpts, epoch, num_epochs)
+
 
 def run():
 
@@ -132,53 +142,60 @@ def run():
     cudnn.benchmark = False 
     cudnn.deterministic = True
 
-    ########## Datasets ###########
+    ############## Dataset ##############
 
     train_file = 'train.txt'
-    
+
     train_transforms = 'Compose([RandCrop3D(({},{},{})), RandomRotion(10), RandomIntensityChange((0.1,0.1)), RandomFlip(0), NumpyType((np.float32, np.int64)),])'.format(args.patch_size, args.patch_size, args.patch_size)
 
     num_cls = 4
-
-    train_mask = [True, True, True, False]
 
     train_set = Brats_loadall(transforms=train_transforms, 
                               root=args.datapath, 
                               num_cls=num_cls, 
                               train_file=train_file,
-                              train_mask=train_mask)
+                              mask_generator=get_mask_combination_exp1)
 
-    train_loader = DataLoader(
-        dataset=train_set,
-        batch_size=args.batch_size,
-        num_workers=3,
-        pin_memory=True,
-        shuffle=True,
-        worker_init_fn=init_fn)
+    
+    site_lengths = equally_spaced_list(len(train_set), args.num_sites)
 
+    site_datasets = random_split(train_set, site_lengths)
+
+    site_train_loaders = [DataLoader(dataset=site_dataset,
+                                     batch_size=args.batch_size,
+                                     num_workers=3,
+                                     pin_memory=True,
+                                     shuffle=True,
+                                     worker_init_fn=init_fn)  
+                                     for site_dataset in site_datasets]
+    
     ########## Setting Models ###########
 
-    model = Modelv2(num_cls=num_cls) 
-    model = torch.nn.DataParallel(model).cuda()
+    models = [Modelv2(num_cls=num_cls) for i in range(args.num_sites)]
+    models = [torch.nn.DataParallel(model).cuda() for model in models]
 
-    ########## Scheduler & Optimizer ##########
+    ########## Scheduler & Optimizers ##########
 
+    # one lr_scheduler is enough whereas each model requires an independant optimizer.
     lr_scheduler = LR_Scheduler(args.lr, args.num_epochs)
-    train_params = [{'params': model.parameters(), 'lr': args.lr, 'weight_decay':args.weight_decay}]
-    optimizer = torch.optim.Adam(train_params,  betas=(0.9, 0.999), eps=1e-08, amsgrad=True)
+    optimizers = []
+    for i in range(args.num_sites):
+        train_params = [{'params': models[i].parameters(), 'lr': args.lr, 'weight_decay':args.weight_decay}]
+        optimizer = torch.optim.Adam(train_params,  betas=(0.9, 0.999), eps=1e-08, amsgrad=True)
+        optimizers.append(optimizer)
 
     ########## Training #########
     
-    train(train_loader, 
-          model, 
-          optimizer, 
+    train(site_train_loaders[0], 
+          models[0], 
+          optimizers[0], 
           lr_scheduler, 
           num_cls, 
           args.num_epochs, 
           args.iter_per_epoch, 
           args.region_fusion_start_epoch, 
           writer, 
-          ckpts)  
+          ckpts)
 
 
 if __name__ == '__main__':
